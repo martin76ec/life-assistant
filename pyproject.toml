@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "life-assitant"
+version = "0.1.0"
+description = ""
+authors = ["martin76ec <larreaamartin@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.scripts]
+start = "src.main:main"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+langchain-google-genai = "^2.0.7"
+python-dotenv = "^1.0.1"
+langchain-community = "^0.3.13"
+pypdf = "^5.1.0"
+langchain-text-splitters = "^0.3.4"
+langchain = "^0.3.13"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+ruff = "^0.8.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[virtualenvs]
+in-project = true
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.black]
+line-length = 160
+target-version = ["py39"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    .*/migrations/
+    |.*/__pycache__/
+    |.*/tests/
+)/
+'''
+
+[tool.ruff]
+select = ["E", "F", "W", "B"]
+exclude = ["migrations", "__pycache__"]
+ignore = ["E501"]
+#max-line-length = 80
+#docstrings = "all"
+#order-imports = true
+#enforce-naming-conventions = true
+#unused-variables = "error"
+#require-annotations = true
+# naming-conventions = [
+#     { pattern = "^_[a-z]", type = "variable", message = "Use snake_case for variables." },
+#     { pattern = "^[a-z]", type = "function", message = "Use snake_case for functions." },
+#     { pattern = "^[A-Z]", type = "class", message = "Use CamelCase for classes." },
+#     { pattern = "^[A-Z_]+$", type = "constant", message = "Use UPPERCASE for constants." },
+#     { pattern = "^[a-z]", type = "method", message = "Use snake_case for methods." }
+# ]
