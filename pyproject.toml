@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "life-assistant"
+version = "0.1.0"
+description = ""
+authors = ["martin76ec <larreaamartin@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "*", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^2.10.5"
+langchain-google-genai = "^2.0.7"
+python-dotenv = "^1.0.1"
+langchain-community = "^0.3.13"
+pypdf = "^5.1.0"
+langchain-text-splitters = "^0.3.4"
+langchain = "^0.3.13"
+fastapi = "^0.115.6"
+sqlmodel = "^0.0.22"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+ruff = "^0.8.4"
+alembic = "^1.14.0"
+
+[virtualenvs]
+in-project = true
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.black]
+line-length = 160
+target-version = ["py39"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    .*/migrations/
+    |.*/__pycache__/
+    |.*/tests/
+)/
+'''
