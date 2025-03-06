@@ -30,8 +30,8 @@ sqlacodegen = "^3.0.0"
 pysqlite3-binary = "^0.5.4"
 
 [tool.poe.tasks]
-pull-models = "sqlacodegen --generator sqlmodels postgresql://postgres.your-tenant-id:123456@localhost:5432/postgres"
-pull-dataclasses = "sqlacodegen --generator dataclasses postgresql://postgres.your-tenant-id:123456@localhost:5432/postgres"
+schema-pull = "python scripts/pull-schema.py"
+schema-upgrade = "alembic upgrade head"
 
 [virtualenvs]
 in-project = true
