@@ -3,64 +3,82 @@ import re
 import subprocess
 from dotenv import load_dotenv
 
-# Step 1: Load environment variables from .env
-load_dotenv()  # This automatically loads .env variables into os.environ
+load_dotenv()
 
-# Ensure DB_URL is set
-DB_URL = os.getenv("DB_URL")
-if not DB_URL:
-  print("Error: DB_URL not found in .env")
-  exit(1)
+OUTPUT_PATH: str = "src/providers/sqlalchemy/models/models.py"
+DB_URL: str = os.getenv("DB_URL") or ""
+MIGRATIONS_DIR: str = "migrations"
 
 
-# Step 2: Generate models.py using sqlacodegen
-def generate_models():
-  try:
-    subprocess.run(
-      ["sqlacodegen", DB_URL, "--generator", "sqlmodels", "src/providers/sqlalchemy/models/models.py"], check=True, capture_output=True, text=True
-    )
-  except subprocess.CalledProcessError as e:
-    print("Error:", e.stderr)
+def generate_models() -> None:
+  """Generates SQLAlchemy models using sqlacodegen."""
+  cmd = ["sqlacodegen", DB_URL, "--generator", "sqlmodels"]
+  result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+  with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+    f.write(result.stdout)
+  print(f"✅ Models generated successfully at {OUTPUT_PATH}")
 
 
-# print("Generating models...")
-# subprocess.run(["sqlacodegen", DB_URL, "--generator", "sqlmodels", "src/providers/sqlalchemy/models/models.py"], check=True)
+def remove_pg_tables(file_path: str) -> None:
+  """Removes pg_stat_statements tables from the generated models."""
+  undesired_starts = ("t_pg_stat_statements = Table(", "t_pg_stat_statements_info = Table(")
+
+  with open(file_path, "r", encoding="utf-8") as f:
+    lines = f.readlines()
+
+  new_lines = []
+  skip_mode = False
+  paren_count = 0
+
+  for line in lines:
+    stripped = line.lstrip()
+    if not skip_mode and any(stripped.startswith(prefix) for prefix in undesired_starts):
+      skip_mode = True
+      paren_count = line.count("(") - line.count(")")
+      continue
+
+    if skip_mode:
+      paren_count += line.count("(") - line.count(")")
+      if paren_count <= 0:
+        skip_mode = False
+      continue
+
+    new_lines.append(line)
+
+  with open(file_path, "w", encoding="utf-8") as f:
+    f.writelines(new_lines)
+
+  print(f"✅ Removed pg tables from {file_path}")
 
 
-# Step 3: Remove `t_pg_stat_statements` from models.py
-def clean_models():
-  if not os.path.exists("models.py"):
-    print("Error: models.py not found")
-    exit(1)
-
-  with open("models.py", "r") as f:
-    content = f.read()
-
-  # Regex to remove `t_pg_stat_statements = Table(...)`
-  pattern = r"t_pg_stat_statements\s*=\s*Table\([^)]*\)\n?"
-  cleaned_content = re.sub(pattern, "", content, flags=re.DOTALL)
-
-  with open("models.py", "w") as f:
-    f.write(cleaned_content)
-
-  print("Removed t_pg_stat_statements from models.py")
-
-
-# Step 4: Initialize Alembic if needed and generate migrations
-def run_alembic():
-  if not os.path.exists("migrations"):
+def run_alembic() -> None:
+  """Runs Alembic migrations."""
+  if not os.path.exists(MIGRATIONS_DIR):
     print("Initializing Alembic...")
-    subprocess.run(["alembic", "init", "migrations"], check=True)
+    subprocess.run(["alembic", "init", MIGRATIONS_DIR], check=True)
 
   print("Generating Alembic migration...")
   subprocess.run(["alembic", "revision", "--autogenerate", "-m", "Initial migration"], check=True)
+  print("✅ Alembic migration complete.")
 
 
-def main():
-  generate_models()
-  # clean_models()
-  run_alembic()
-  print("✅ Model generation and Alembic migration complete.")
+def main() -> None:
+  """Main function to run model generation and Alembic migrations."""
+  try:
+    generate_models()
+    remove_pg_tables(OUTPUT_PATH)
+    run_alembic()
+    print("✅ Model generation and Alembic migration complete.")
+  except subprocess.CalledProcessError as e:
+    print(f"❌ Error running a subprocess: {e}")
+    print(f"Output: {e.output}")
+    exit(1)
+  except FileNotFoundError as e:
+    print(f"❌ Error: File not found: {e.filename if hasattr(e, 'filename') else e}")
+    exit(1)
+  except Exception as e:
+    print(f"❌ An unexpected error occurred: {e}")
+    exit(1)
 
 
 if __name__ == "__main__":
