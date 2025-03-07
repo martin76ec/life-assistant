@@ -6,6 +6,9 @@ authors = ["martin76ec <larreaamartin@gmail.com>"]
 readme = "README.md"
 packages = [{ include = "*", from = "src" }]
 
+[tool.poetry.scripts]
+dev = "src.main:start"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 pydantic = "^2.10.5"
@@ -17,6 +20,7 @@ langchain-text-splitters = "^0.3.4"
 langchain = "^0.3.13"
 fastapi = "^0.115.6"
 sqlmodel = "^0.0.22"
+uvicorn = "^0.34.0"
 
 [build-system]
 requires = ["poetry-core"]
