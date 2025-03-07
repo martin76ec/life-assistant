@@ -5,18 +5,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OUTPUT_PATH: str = "src/providers/sqlalchemy/models/models.py"
+OUTPUT_PATH: str = "src/providers/sqlalchemy/models"
 DB_URL: str = os.getenv("DB_URL") or ""
 MIGRATIONS_DIR: str = "migrations"
 
 
 def generate_models() -> None:
   """Generates SQLAlchemy models using sqlacodegen."""
+  path = OUTPUT_PATH + "/models.py"
   cmd = ["sqlacodegen", DB_URL, "--generator", "sqlmodels"]
   result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-  with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+  with open(path, "w", encoding="utf-8") as f:
     f.write(result.stdout)
-  print(f"✅ Models generated successfully at {OUTPUT_PATH}")
+  print(f"✅ Models generated successfully at {path}")
+
+
+def generate_dataclasses() -> None:
+  """Generates SQLAlchemy dataclasses using sqlacodegen."""
+  path = OUTPUT_PATH + "/dataclasses.py"
+  cmd = ["sqlacodegen", DB_URL, "--generator", "dataclasses"]
+  result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+  with open(path, "w", encoding="utf-8") as f:
+    f.write(result.stdout)
+  print(f"✅ Dataclasses generated successfully at {path}")
 
 
 def remove_pg_tables(file_path: str) -> None:
@@ -66,7 +77,8 @@ def main() -> None:
   """Main function to run model generation and Alembic migrations."""
   try:
     generate_models()
-    remove_pg_tables(OUTPUT_PATH)
+    generate_dataclasses()
+    remove_pg_tables(OUTPUT_PATH + "/models.py")
     run_alembic()
     print("✅ Model generation and Alembic migration complete.")
   except subprocess.CalledProcessError as e:
