@@ -1,5 +1,7 @@
 from typing import Any
+
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+
 from providers.constants.env import DB_URL
 
 

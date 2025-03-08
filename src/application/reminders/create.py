@@ -1,9 +1,11 @@
 from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from domain.reminders.types import ReminderModel
 from providers.sqlalchemy.engine import EngineSingleton
-from src.providers.sqlalchemy.models.models import Reminders
 from src.infrastructure.database.reminders.reminders_ds import RemindersDS
+from src.providers.sqlalchemy.models.models import Reminders
 
 
 class Create:

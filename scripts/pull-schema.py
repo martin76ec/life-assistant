@@ -1,6 +1,6 @@
 import os
-import re
 import subprocess
+
 from dotenv import load_dotenv
 
 load_dotenv()

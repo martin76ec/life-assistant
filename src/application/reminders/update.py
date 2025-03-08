@@ -5,8 +5,10 @@
 # context: don't put unncessary comments
 
 from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
+
 from src.providers.sqlalchemy.models.models import Reminders
 
 

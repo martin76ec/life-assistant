@@ -1,3 +1,5 @@
+import datetime
+import decimal
 from typing import List, Optional
 
 from sqlalchemy import (
@@ -18,8 +20,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import OID
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedAsDataclass, mapped_column, relationship
-import datetime
-import decimal
 
 
 class Base(MappedAsDataclass, DeclarativeBase):
